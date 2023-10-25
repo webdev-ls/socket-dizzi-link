@@ -33,7 +33,7 @@ io.on("connection", (socket) => {
     // @desc broadcast Message in a room
     broadcastMessage(socket,io);
     // user disconnection
-    // disconnect(socket,io);
+    disconnect(socket,io);
 
     console.log("joined",socket.id);
 

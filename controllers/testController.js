@@ -40,7 +40,7 @@ const joinedTest = (socket,io)=>{
     socket.on('joinedTest', (data) => {
         console.log("user joined test named",data);
         io.to(testId).emit('candidateJoined', {
-            id : socket.id, candidateName : profanity.maskBadWords(data.candidateName) , marks : data.marks
+            id : socket.id, candidateName : data.candidateName , marks : data.marks
         });
     });
 }

@@ -79,12 +79,8 @@ const sendAnswerAnalytics = (socket,io)=>{
 // @desc broadcast Message in a room
 const broadcastMessage = (socket,io)=>{
     const testId = socket.handshake.query.testId;
-    socket.on('broadcastMessage', ({sender,message,time}) => {
-        io.to(testId).emit('receiveMessage', {
-            sender : profanity.maskBadWords(sender),
-            message: profanity.maskBadWords(message),
-            time,
-        });
+    socket.on('broadcastMessage', (message) => {
+        io.to(testId).emit('receiveMessage', message);
     });
 }
 // @desc when user disconnected from socket

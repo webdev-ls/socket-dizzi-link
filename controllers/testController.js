@@ -1,3 +1,5 @@
+import profanity from "profanity-hindi";
+
 // @desc Invigilator Joinig Test Portal With Test Id -> Creating Room And Let Students Joining
 const hostLiveTest = (socket,io)=>{
     const testId = socket.handshake.query.testId;
@@ -5,8 +7,8 @@ const hostLiveTest = (socket,io)=>{
         socket.join(testId);
         socket.leave(socket.id);
         io.sockets.adapter.rooms.delete(socket.id);
-        console.log(io.sockets.adapter.rooms);
-        console.log("host test called by admin");
+        // console.log(io.sockets.adapter.rooms);
+        // console.log("host test called by admin");
         // emit test started event on all joiners
         io.emit('joinLiveTest', testId);
     });
@@ -37,8 +39,8 @@ const joinedTest = (socket,io)=>{
     const testId = socket.handshake.query.testId;
     socket.on('joinedTest', (data) => {
         console.log("user joined test named",data);
-        io.emit('candidateJoined', {
-            id : socket.id, candidateName : data.candidateName , marks : data.marks
+        io.to(testId).emit('candidateJoined', {
+            id : socket.id, candidateName : profanity.maskBadWords(data.candidateName) , marks : data.marks
         });
     });
 }
@@ -47,7 +49,7 @@ const makeQuestionActive = (socket,io)=>{
     const testId = socket.handshake.query.testId;
     socket.on('makeQuestionActive', (questionId) => {
         console.log("question active via admin",questionId);
-        io.emit('checkActiveQuestion', questionId);
+        io.to(testId).emit('checkActiveQuestion', questionId);
     });
 }
 // @desc reveal options for all users by admin
@@ -55,7 +57,7 @@ const revealOptions = (socket,io)=>{
     const testId = socket.handshake.query.testId;
     socket.on('revealOptions', (questionId) => {
         console.log("option reveal via admin   ",questionId);
-        io.emit('checkOptionReveal', questionId);
+        io.to(testId).emit('checkOptionReveal', questionId);
     });
 }
 // @desc reveal answer by invigilator
@@ -63,7 +65,7 @@ const revealAnswer = (socket,io)=>{
     const testId = socket.handshake.query.testId;
     socket.on('revealAnswer', (questionId) => {
         console.log("answer reveal via admin   ",questionId);
-        io.emit('checkAnswerReveal', questionId);
+        io.to(testId).emit('checkAnswerReveal', questionId);
     });
 }
 // @desc get answer analytics from candidate to invigilator
@@ -71,9 +73,31 @@ const sendAnswerAnalytics = (socket,io)=>{
     const testId = socket.handshake.query.testId;
     socket.on('sendAnswerAnalytics', (data) => {
         console.log("answer analytics of user   ",data);
-        io.emit('fetchAnswerAnalytics', data);
+        io.to(testId).emit('fetchAnswerAnalytics', data);
+    });
+}
+// @desc broadcast Message in a room
+const broadcastMessage = (socket,io)=>{
+    const testId = socket.handshake.query.testId;
+    socket.on('broadcastMessage', ({sender,message,time}) => {
+        io.to(testId).emit('receiveMessage', {
+            sender : profanity.maskBadWords(sender),
+            message: profanity.maskBadWords(message),
+            time,
+        });
+    });
+}
+// @desc when user disconnected from socket
+const disconnect = (socket,io)=>{
+    const testId = socket.handshake.query.testId;
+    socket.on('disconnect', (data) => {
+        // All Personal Rooms Will Be Working For Having one on One Chat
+        socket.leave(testId);
+        socket.leave(socket.id);
+        io.sockets.adapter.rooms.delete(socket.id);
+        io.to(testId).emit('userDisconnected', {id:socket.id});
     });
 }
 
 
-export {hostLiveTest,takeLiveTest,joinedTest,makeQuestionActive,revealOptions,revealAnswer,sendAnswerAnalytics};
+export {hostLiveTest,takeLiveTest,joinedTest,makeQuestionActive,revealOptions,revealAnswer,sendAnswerAnalytics,broadcastMessage,disconnect};

@@ -5,10 +5,10 @@ const hostLiveTest = (socket,io)=>{
     const testId = socket.handshake.query.testId;
     socket.on('hostLiveTest', () => {
         socket.join(testId);
-        socket.leave(socket.id);
-        io.sockets.adapter.rooms.delete(socket.id);
-        // console.log(io.sockets.adapter.rooms);
-        // console.log("host test called by admin");
+        // socket.leave(socket.id);
+        // io.sockets.adapter.rooms.delete(socket.id);
+        console.log(io.sockets.adapter.rooms);
+        console.log("host test called by admin");
         // emit test started event on all joiners
         io.emit('joinLiveTest', testId);
     });

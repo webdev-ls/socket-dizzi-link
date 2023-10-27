@@ -84,6 +84,19 @@ const broadcastMessage = (socket,io)=>{
     });
 }
 // @desc when user disconnected from socket
+const stopLiveTest = (socket,io)=>{
+    const testId = socket.handshake.query.testId;
+    socket.on('stopLiveTest', (data) => {
+        io.to(testId).emit('stopLiveTest', {id:socket.id});
+        console.log("test stoped by admin");
+        // All Personal Rooms Will Be Working For Having one on One Chat
+        socket.leave(testId);
+        io.sockets.adapter.rooms.delete(testId);
+        socket.leave(socket.id);
+        io.sockets.adapter.rooms.delete(socket.id);
+    });
+}
+// @desc when user disconnected from socket
 const disconnect = (socket,io)=>{
     const testId = socket.handshake.query.testId;
     socket.on('disconnect', (data) => {
@@ -96,4 +109,4 @@ const disconnect = (socket,io)=>{
 }
 
 
-export {hostLiveTest,takeLiveTest,joinedTest,makeQuestionActive,revealOptions,revealAnswer,sendAnswerAnalytics,broadcastMessage,disconnect};
+export {hostLiveTest,takeLiveTest,joinedTest,makeQuestionActive,revealOptions,revealAnswer,sendAnswerAnalytics,broadcastMessage,stopLiveTest,disconnect};

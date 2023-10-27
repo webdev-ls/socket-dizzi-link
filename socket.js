@@ -2,7 +2,7 @@ import dotenv from "dotenv"
 dotenv.config();
 import { createServer } from "http";
 import {Server} from 'socket.io';
-import { broadcastMessage, disconnect, hostLiveTest, joinedTest, makeQuestionActive, revealAnswer, revealOptions, sendAnswerAnalytics, takeLiveTest } from "./controllers/testController.js";
+import { broadcastMessage, disconnect, hostLiveTest, joinedTest, makeQuestionActive, revealAnswer, revealOptions, sendAnswerAnalytics, stopLiveTest, takeLiveTest } from "./controllers/testController.js";
 const socketPort = process.env.PORT || 5500;
 const allowedOrigins = process.env.ALLOWED_ORIGINS || "http://localhost:3000";
 
@@ -32,6 +32,8 @@ io.on("connection", (socket) => {
     sendAnswerAnalytics(socket,io);
     // @desc broadcast Message in a room
     broadcastMessage(socket,io);
+    // stopLiveTest
+    stopLiveTest(socket,io);
     // user disconnection
     disconnect(socket,io);
 
